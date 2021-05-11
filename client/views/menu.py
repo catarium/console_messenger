@@ -20,7 +20,7 @@ from ..localization import Localizate
 class StartMenuView(Frame):
 
     def __init__(
-        self: LogAndRegMenu, screen: Screen
+        self: StartMenuView, screen: Screen
     ) -> None:
         with open("client/config.json", "r") as file:
             data = json.loads(file.read())
@@ -50,13 +50,13 @@ class StartMenuView(Frame):
         layout2.add_widget(self._quit_button, 2)
         self.fix()
 
-    def _login(self: LogAndRegMenu) -> None:
+    def _login(self: StartMenuView) -> None:
         raise NextScene('Login')
 
-    def _registration(self: LogAndRegMenu) -> None:
+    def _registration(self: StartMenuView) -> None:
         raise NextScene('Registration')
 
-    def _quit(self: LogAndRegMenu) -> None:
+    def _quit(self: StartMenuView) -> None:
         self._scene.add_effect(
             PopUpDialog(
                 self._screen, self._("Вы уверенны?"),
@@ -68,4 +68,4 @@ class StartMenuView(Frame):
     @staticmethod
     def _quit_on_yes(selected: int) -> typing.NoReturn:
         if selected == 0:
-            raise StopApplication(self._("User pressed quit"))
+            raise StopApplication("User pressed quit")

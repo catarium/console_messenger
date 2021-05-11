@@ -97,6 +97,8 @@ class ChatView(Frame):
         super()._update(frame_no)
         rand = random.randint(1, 1000)
         messages = self._model.get_messages()
+        print(messages)
+        messages = [(f'{m[2]} {m[0]}: {m[1]}', '0') for m in messages]
         self._messages_list.options = messages
 
     def _reload_chat(self: ChatView) -> None:

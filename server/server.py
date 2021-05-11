@@ -60,10 +60,11 @@ async def get_chats_list(token):
     except KeyError:
         return {'result': False, 'msg': 'неверный токен'}
     data = await Chats.objects.all(member_id1=user_id)
-    data = [(i.id, Users.objects.get(id=i.member_id2)) for i in data]
+    print(data)
+    data = [(i.id, await Users.objects.get(id=i.member_id2)) for i in data]
     data2 = await Chats.objects.all(member_id2=user_id)
-    data += [(i.id, Users.objects.get(id=i.member_id1)) for i in data2]
-    data = [{'chat_id': i[0], 'membername': i[1]} for i in data]
+    data += [(i.id, await Users.objects.get(id=i.member_id1)) for i in data2]
+    data = [(i[1].username, str(i[0])) for i in data]
     return {'result': True, 'chats': data}
 
 
@@ -84,7 +85,8 @@ async def start_chat(token, member: Member):
         data = await Chats.objects.get(member_id1=user_id, member_id2=member_id)
         data2 = await Chats.objects.get(member_id2=user_id, member_id1=member_id)
     except ormar.exceptions.NoMatch:
-        id_ = await Chats.objects.get(member_id1=user_id, member_id2=member_id).id
+        id_ = await Chats.objects.create(member_id1=user_id, member_id2=member_id)
+        id_ = id_.id
         return {'result': True, 'chat_id': id_}
     return {'result': False, 'msg': 'чат уже создан'}
 
@@ -96,15 +98,14 @@ async def send_message(token, chat_id, message: Message):
     except IndexError:
         return {'result': False, 'msg': 'неверный токен'}
     chat = await Chats.objects.get(id=chat_id)
-    try:
-        if user_id == chat.member_id1 or user_id == chat.member_id2:
-            date = dt.now()
-            date = date.strftime('%Y-%m-%d %H:%M')
-            await Messages.objects.create(user_id=users, chat_id=chat_id, message_text=message.text,
-                                          date=date)
-            return {'result': True}
-    except TypeError:
-        return {'result': False, 'msg': 'чат не найден'}
+    if user_id == chat.member_id1 or user_id == chat.member_id2:
+        date = dt.now()
+        date.replace(microsecond=0, second=0)
+        print('creating')
+        await Messages.objects.create(user_id=user_id, chat_id=chat_id, message_text=message.text,
+                                      date=date)
+        print('created')
+        return {'result': True}
     return {'result': False, 'msg': 'чат не найден'}
 
 
@@ -124,12 +125,13 @@ async def get_messages(token, chat_id, ws: WebSocket):
     last_message_id = 0
     while True:
         try:
-            data = await Messages.objects.all(chat_id=chat_id, id__gt=last_message_id)
+            data = await Messages.objects.all(chat_id=int(chat_id), id__gt=last_message_id)
         except ormar.exceptions.NoMatch:
             data = []
-        messages = [{'username': i.username, 'text': i.message_text, 'date': i.date} for i in data]
+        messages = [{'username': (await Users.objects.get(id=i.user_id)).username, 'text': i.message_text, 'date': str(i.date)} for i in data]
         try:
-            last_message_id = data[-1][0]
+            last_message_id = data[-1].id
+            print(last_message_id)
         except IndexError:
             pass
         if messages:

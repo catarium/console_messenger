@@ -29,7 +29,7 @@ class MessageModel(object):
             while not MessageModel.stop:
                 data = await websocket.recv()
                 data = json.loads(data)
-                data['messages'] = [tuple(message) for message in data['messages']]
+                data['messages'] = [tuple(message.values()) for message in data['messages']]
                 messages += data['messages']
 
     def _start_websocket(self, chat_id: int) -> None:
@@ -61,10 +61,9 @@ class MessageModel(object):
             
             with open("client/config.json", "w") as file:
                 file.write(json.dumps(data, indent=4))
-
             self.token = res['token']
         except KeyError:
-            raise "Хуй тебе!"
+            pass
         return res
 
     def register(self, username: str, password: str) -> None:
@@ -90,7 +89,8 @@ class MessageModel(object):
         return res
 
     def send_message(self, chat_id: int, text: str) -> dict:
-        return requests.post(f'{self.url}/chats/{self.token}/{chat_id}', json={'text': text})
+        res = requests.post(f'{self.url}/chats/{self.token}/{chat_id}', json={'text': text})
+        return res
 
     def get_chats(self) -> dict:
         return requests.get(f'{self.url}/chats/{self.token}').json()

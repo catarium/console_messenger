@@ -85,8 +85,9 @@ class ChatsListView(Frame):
             chats = self._model.get_chats()
 
             if chats['result']:
-                chats = [tuple(chat) for chat in chats['chats']]
-                self._chats_list.options = chats
+                print(chats)
+                # chats = [tuple(chat) for chat in chats['chats']]
+                self._chats_list.options = chats['chats']
             elif not chats['result']:
                 self._chats_list.options = []
 
