@@ -39,9 +39,8 @@ class ChatView(Frame):
             screen.height * 2 // 3,
             screen.width * 2 // 3,
             hover_focus=True,
-            can_scroll=False,
+            can_scroll=True,
             title=self._("Чат"),
-            on_load=self._reload_chat
         )
 
         self._model = model
@@ -59,7 +58,9 @@ class ChatView(Frame):
         self._messages_list = ListBox(
             Widget.FILL_FRAME,
             options=[],
-            name="messages"
+            name="messages",
+            # add_scroll_bar=True
+
         )
         self._input_form = Text(
             label="Сообщение:",
@@ -82,30 +83,39 @@ class ChatView(Frame):
         layout2.add_widget(self._back_button, 1)
         self.fix()
 
+        self.model_connected = False
+
     def _send_message(self: ChatView) -> None:
         self.save()
-        self._model.close_websocket()
+        print('sended')
         self._model.send_message(
             int(os.environ['TUI_CHAT_ID']),
             self.data['message']
         )
-        self._model.start_websocket(
-            int(os.environ['TUI_CHAT_ID'])
-        )
+
 
     def _update(self, frame_no) -> None:
-        super()._update(frame_no)
-        rand = random.randint(1, 1000)
-        messages = self._model.get_messages()
-        print(messages)
-        messages = [(f'{m[2]} {m[0]}: {m[1]}', '0') for m in messages]
-        self._messages_list.options = messages
-
-    def _reload_chat(self: ChatView) -> None:
-        with open("client/config.json", "r") as file:
-            data = json.loads(file.read())
-            self._model = MessageModel(data['url'])
-            self._model.start_websocket(int(os.environ['TUI_CHAT_ID']))
+        try:
+            super()._update(frame_no)
+            if not self.model_connected:
+                with open("client/config.json", "r") as file:
+                    self.model_connected = True
+                    data = json.loads(file.read())
+                    self._model = MessageModel(data['url'])
+                    self._model.start_websocket(int(os.environ['TUI_CHAT_ID']))
+            messages = self._model.get_messages()
+            messages = [(f'{messages[i][2]} {messages[i][0]}: {messages[i][1]}', str(i)) for i in range(len(messages))]
+            if messages != self._messages_list.options:
+                print(messages != self._messages_list.options)
+                if self._messages_list.value is None or \
+                        self._messages_list.options[-1][1] == self._messages_list.value:
+                    self._messages_list.options = messages
+                    self._messages_list.value = self._messages_list.options[-1][1]
+                else:
+                    self._messages_list.options = messages
+        except KeyboardInterrupt:
+            self._back()
+            raise KeyboardInterrupt
 
     def _back(self: ChatView) -> None:
         self._scene.add_effect(
@@ -118,5 +128,6 @@ class ChatView(Frame):
 
     def _quit_on_yes(self: ChatView, selected: int) -> None:
         if selected == 0:
+            self.model_connected = False
             self._model.close_websocket()
             raise NextScene("ChatsList")

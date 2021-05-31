@@ -125,16 +125,17 @@ async def get_messages(token, chat_id, ws: WebSocket):
     last_message_id = 0
     while True:
         try:
-            data = await Messages.objects.all(chat_id=int(chat_id), id__gt=last_message_id)
+            data = await Messages.objects.limit(300).all(chat_id=int(chat_id), id__gt=last_message_id)
+            if not data or last_message_id == data[-1].id:
+                continue
         except ormar.exceptions.NoMatch:
-            data = []
-        messages = [{'username': (await Users.objects.get(id=i.user_id)).username, 'text': i.message_text, 'date': str(i.date)} for i in data]
-        try:
-            last_message_id = data[-1].id
-            print(last_message_id)
-        except IndexError:
-            pass
+            continue
+        last_message_id = data[-1].id
+        print(last_message_id)
+        messages = [{'username': (await Users.objects.get(id=i.user_id)).username,
+                     'text': i.message_text, 'date': str(i.date)} for i in data]
+        # print(messages)
         if messages:
             print('sending')
             await ws.send_json({'result': True, 'messages': messages})
-        await asyncio.sleep(5)
+        await asyncio.sleep(1)

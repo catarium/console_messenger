@@ -5,8 +5,8 @@ import contextlib
 
 from asciimatics.exceptions import NextScene
 from asciimatics.widgets import (
-    Layout, Text, TextBox, Widget, Button, 
-    ListBox, Divider, Frame, Label, VerticalDivider, 
+    Layout, Text, TextBox, Widget, Button,
+    ListBox, Divider, Frame, Label, VerticalDivider,
     PopUpDialog
 )
 from asciimatics.screen import Screen
@@ -15,10 +15,10 @@ from ..models import MessageModel
 from ..localization import Localizate
 
 
-class LoginView(Frame):
+class StartChatView(Frame):
 
     def __init__(
-        self: LoginView, screen: Screen, model: MessageModel
+            self: StartChatView, screen: Screen, model: MessageModel
     ) -> None:
         with open("client/config.json", "r") as file:
             data = json.loads(file.read())
@@ -39,28 +39,27 @@ class LoginView(Frame):
         self.add_layout(layout)
 
         layout.add_widget(Text(self._('Имя пользователя:'), 'username'))
-        layout.add_widget(Text(self._('Пароль:'), 'password'))
 
         layout2 = Layout([1, 1])
         self.add_layout(layout2)
-        self._login_button = Button(self._('Вход'), self._login)
+        self._start_chat_button = Button(self._('Начать чат'), self._start_chat)
         self._back_button = Button(self._('Назад'), self._back)
-        layout2.add_widget(self._login_button, 0)
+        layout2.add_widget(self._start_chat_button, 0)
         layout2.add_widget(self._back_button, 1)
 
         self.fix()
 
-    def _login(self: Login) -> None:
+    def _start_chat(self: StartChatView) -> None:
         self.save()
-        if not self.data['username'] or not self.data['password']:
+        if not self.data['username']:
             self._keyerror_handler()
-        res = self._model.login(self.data['username'], self.data['password'])
-        if self.data['username'] and self.data['password']:
-            if res['result']:
-                raise NextScene("ChatsList")
-            self._user_not_found_handler(res['msg'])
-    
-    def _keyerror_handler(self: Login) -> None:
+        print(self.data['username'])
+        res = self._model.start_chat(self.data['username'])
+        if res['result']:
+            raise NextScene("ChatsList")
+        self._user_not_found_handler(res['msg'])
+
+    def _keyerror_handler(self: StartChatView) -> None:
         self._scene.add_effect(
             PopUpDialog(
                 self._screen, self._("Пожалуйста, заполните все поля!"),
@@ -69,7 +68,7 @@ class LoginView(Frame):
             )
         )
 
-    def _user_not_found_handler(self: Login, msg: str) -> None:
+    def _user_not_found_handler(self: StartChatView, msg: str) -> None:
         self._scene.add_effect(
             PopUpDialog(
                 self._screen, msg,
@@ -84,5 +83,5 @@ class LoginView(Frame):
             raise NextScene("Login")
         raise NextScene("StartMenu")
 
-    def _back(self: Login) -> None:
-        raise NextScene('StartMenu')
+    def _back(self: _back) -> None:
+        raise NextScene("ChatsList")

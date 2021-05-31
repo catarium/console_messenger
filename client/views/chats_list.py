@@ -33,7 +33,7 @@ class ChatsListView(Frame):
             screen.height * 2 // 3,
             screen.width * 2 // 3,
             hover_focus=True,
-            can_scroll=False,
+            can_scroll=True,
             title=self._("Чат"),
             on_load=self._reload_chats_list
         )
@@ -85,14 +85,13 @@ class ChatsListView(Frame):
             chats = self._model.get_chats()
 
             if chats['result']:
-                print(chats)
                 # chats = [tuple(chat) for chat in chats['chats']]
                 self._chats_list.options = chats['chats']
             elif not chats['result']:
                 self._chats_list.options = []
 
     def _build_chat(self: ChatsListView) -> None:
-        raise NextScene('ChatsList')
+        raise NextScene('StartChat')
 
     def _enter_chat(self: ChatsListView) -> None:
         self.save()   

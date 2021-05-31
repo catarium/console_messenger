@@ -1,11 +1,9 @@
 import sys
 import json
-import threading
-import asyncio
-
+from ..threads import StoppableThread
 import requests
 
-from websockets import connect
+from websocket import create_connection
 
 messages = []
 
@@ -20,30 +18,28 @@ class MessageModel(object):
             self.token = data['token']
         self.url = url
         self.messages = []
-        self.loop = asyncio.get_event_loop()
 
-    async def _get_messages(self, chat_id: int) -> None:
+    def _get_messages(self, chat_id: int) -> None:
         global messages
         uri = f"ws://localhost:8000/chats/{self.token}/{chat_id}"
-        async with connect(uri) as websocket:
-            while not MessageModel.stop:
-                data = await websocket.recv()
-                data = json.loads(data)
-                data['messages'] = [tuple(message.values()) for message in data['messages']]
-                messages += data['messages']
-
-    def _start_websocket(self, chat_id: int) -> None:
-        MessageModel.stop = False
-        asyncio.run(self._get_messages(chat_id))
+        self.ws = create_connection(uri)
+        while not MessageModel.stop:
+            data = self.ws.recv()
+            data = json.loads(data)
+            data['messages'] = [tuple(message.values()) for message in data['messages']]
+            messages += data['messages']
+        return
 
     def start_websocket(self, chat_id: int) -> None:
-        self.thread = threading.Thread(target=self._start_websocket, args=(chat_id,))
+        MessageModel.stop = False
+        self.thread = StoppableThread(target=self._get_messages, args=(chat_id,))
         self.thread.start()
         
     def close_websocket(self) -> None:
         global messages
         messages = []
         MessageModel.stop = True
+        self.ws.close()
 
     def get_messages(self) -> list:
         global messages
@@ -84,7 +80,8 @@ class MessageModel(object):
                 file.write(json.dumps(data, indent=4))
 
         except KeyError:
-            raise MessengerError(res['msg'])
+            pass
+            # raise MessengerError(res['msg'])
 
         return res
 
@@ -96,7 +93,5 @@ class MessageModel(object):
         return requests.get(f'{self.url}/chats/{self.token}').json()
 
     def start_chat(self, membername: str) -> None:
-        requests.post(
-            f'{self.url}/chats/{self.token}', 
-            json={'membername': membername}
-        ).json()
+        res = requests.post(f'{self.url}/chats/start/{self.token}/', json={'membername': membername}).json()
+        return res

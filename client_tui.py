@@ -8,7 +8,7 @@ from asciimatics.exceptions import ResizeScreenError, NextScene, StopApplication
 from client.models import MessageModel
 from client.views import (
     StartMenuView, LoginView, RegistrationView, ChatsListView, 
-    ChatView
+    ChatView, StartChatView
 )
 
 
@@ -23,6 +23,7 @@ def demo(screen, scene):
         Scene([Julia(screen), RegistrationView(screen, contacts)], -1, name="Registration"),
         Scene([Julia(screen), ChatsListView(screen, contacts)], -1, name="ChatsList"),
         Scene([Julia(screen), ChatView(screen, contacts)], -1, name="Chat"),
+        Scene([Julia(screen), StartChatView(screen, contacts)], -1, name="StartChat")
     ]
 
     screen.play(scenes, stop_on_resize=True, start_scene=scene, allow_int=True)
