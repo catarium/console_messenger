@@ -101,7 +101,6 @@ class ChatView(Frame):
                 with open("client/config.json", "r") as file:
                     self.model_connected = True
                     data = json.loads(file.read())
-                    self._model = MessageModel(data['url'])
                     self._model.start_websocket(int(os.environ['TUI_CHAT_ID']))
             messages = self._model.get_messages()
             messages = [(f'{messages[i][2]} {messages[i][0]}: {messages[i][1]}', str(i)) for i in range(len(messages))]

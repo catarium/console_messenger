@@ -2,6 +2,7 @@ import sys
 import json
 from ..threads import StoppableThread
 import requests
+from ..ws_cap import WebsocketCap
 
 from websocket import create_connection
 
@@ -18,6 +19,8 @@ class MessageModel(object):
             self.token = data['token']
         self.url = url
         self.messages = []
+        self.ws = WebsocketCap()
+        self.stop = False
 
     def _get_messages(self, chat_id: int) -> None:
         global messages
@@ -38,7 +41,7 @@ class MessageModel(object):
     def close_websocket(self) -> None:
         global messages
         messages = []
-        MessageModel.stop = True
+        self.stop = True
         self.ws.close()
 
     def get_messages(self) -> list:

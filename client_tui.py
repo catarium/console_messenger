@@ -39,3 +39,7 @@ while True:
         sys.exit(0)
     except ResizeScreenError as e:
         last_scene = e.scene
+    except KeyboardInterrupt:
+        print(type(contacts.ws))
+        contacts.close_websocket()
+        raise KeyboardInterrupt
