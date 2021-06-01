@@ -1,5 +1,6 @@
 {
-    "url": "http://127.0.0.1:8000",
-    "token": "",
+    "url": "https://0fff763ba89a.ngrok.io",
+    "websocket_url": "wss://0fff763ba89a.ngrok.io",
+    "token": "dswbbp96wfc0xmrh",
     "lang": "ru"
 }

@@ -104,7 +104,7 @@ class ChatView(Frame):
                     self._model.start_websocket(int(os.environ['TUI_CHAT_ID']))
             messages = self._model.get_messages()
             messages = [(f'{messages[i][2]} {messages[i][0]}: {messages[i][1]}', str(i)) for i in range(len(messages))]
-            if messages != self._messages_list.options:
+            if messages != self._messages_list.options and messages:
                 print(messages != self._messages_list.options)
                 if self._messages_list.value is None or \
                         self._messages_list.options[-1][1] == self._messages_list.value:

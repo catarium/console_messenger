@@ -24,7 +24,10 @@ class MessageModel(object):
 
     def _get_messages(self, chat_id: int) -> None:
         global messages
-        uri = f"ws://localhost:8000/chats/{self.token}/{chat_id}"
+        with open('client/config.json', encoding='UTF-8') as f:
+            jf = json.load(f)
+            print(jf)
+            uri = f"{jf['websocket_url']}/chats/{self.token}/{chat_id}"
         self.ws = create_connection(uri)
         while not MessageModel.stop:
             data = self.ws.recv()
