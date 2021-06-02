@@ -1,3 +1,4 @@
-colorama~=0.4.4
+asciimatics~=1.13.0
 requests~=2.25.1
-websockets~=9.0.1
+websocket-client~=1.0.1
+googletrans~=3.0.0
