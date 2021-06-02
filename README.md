@@ -6,7 +6,7 @@
 ```
 cd client
 ```
-### Установите зависимости
+### Установите зависимости (Требуется установка python)
 ```
 pip install -r requirements.txt
 ```
@@ -24,8 +24,13 @@ pip install -r requirements.txt
 cd ..
 ```
 ### Запустите client_tui.py
+#### Windows (Требуется установка python)
 ```
 python client_tui.py
+```
+#### Linux
+```
+python3 client_tui.py
 ```
 ## Сервер <a name="server">
 ### Перейдите в директорию сервера
@@ -34,7 +39,7 @@ cd server
 ```
 ### Установите зависимости
 ```
-pip install -r requirements.txt
+pip3 install -r requirements.txt
 ```
 ### Перейдите в директорию выше
 ```
