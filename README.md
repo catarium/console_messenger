@@ -8,7 +8,7 @@ cd client
 ```
 ### Установите зависимости (Требуется установка python)
 ```
-pip install -r requirements.txt
+pip3 install -r requirements.txt
 ```
 ### Укажите хост в config.json
 ```
