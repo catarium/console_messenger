@@ -9,6 +9,15 @@ cd client
 ```
 pip install -r requirements.txt
 ```
+### Укажите хост в config.json
+```
+{
+    "url": "например http://127.0.0.1:8000",
+    "websocket_url": "например ws://127.0.0.1:8000",
+    "token": "",
+    "lang": "ru"
+}
+```
 ### Перейдите в директорию выше
 ```
 cd ..
